@@ -11,7 +11,7 @@ typedef struct
 }LinReg;
 
 
-#define lin_reg (LinReg)                        \
+#define lin_reg_init (LinReg)                   \
     {                                           \
         .a=(float) rand() / (float)RAND_MAX     \
         , .b=(float) rand()/(float)RAND_MAX     \
@@ -38,42 +38,31 @@ forward(LinReg * self, float x)
 }
 
 
-#define DELTA 0.000001
-
-
 /*
-** computation of gradient for 'a' parameter - partial derivative with respect to parametr 'a'
-** computation is based on finite difference: dt = (f(x+delta) - f(x)) / delta
-** which is numerical derivation in essence
+** Gradient for 'a' parameter is simply partial derivative regarding to parameter a
+** This is information about impact of change of value of parameter 'a' to change of output loss
 */
 float
 gradient_a(
     LinReg * self
     , float x
-    , float y
-    , float loss)
+    , float y)
 {
-    float delta_loss = powf(y- ((x * (self->a + DELTA)) + self->b), 2);
-
-    return (delta_loss - loss) / DELTA;
+    return -2 * x * (y - forward(self, x));
 }
 
 
 /*
-** computation of gradient for 'b' parameter - partial derivative with respect to parametr 'b'
-** computation is based on finite difference: dt = (f(x+delta) - f(x)) / delta
-** which is numerical derivation in essence
+** Gradient for 'b' parameter is simply partial derivative regarding to parameter a
+** This is information about impact of change of value of parameter 'b' to change of output loss
 */
 float
 gradient_b(
     LinReg * self
     , float x
-    , float y
-    , float loss)
+    , float y)
 {
-    float delta_loss = powf(y- ((x * self->a) + (self->b+DELTA)), 2);
-
-    return (delta_loss - loss) / DELTA;
+    return -2 * (y - forward(self, x));
 }
 
 
@@ -91,7 +80,7 @@ main(void)
     /*
     ** initialization of linear regression model with random values
     */
-    LinReg model = lin_reg;
+    LinReg model = lin_reg_init;
 
     size_t epochs     = 500;
     size_t batch_size = sizeof(X)/sizeof(*X);
@@ -111,8 +100,8 @@ main(void)
             float y_p      = forward(&model, X[index]);
             float loc_loss = error(Y[index], y_p); 
             loss          += loc_loss;
-            da            += gradient_a(&model, X[index], Y[index], loc_loss);
-            db            += gradient_b(&model, X[index], Y[index], loc_loss);
+            da            += gradient_a(&model, X[index], Y[index]);
+            db            += gradient_b(&model, X[index], Y[index]);
         }
 
         loss /= batch_size;
