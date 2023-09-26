@@ -4,17 +4,19 @@
 #include <math.h>
 
 
+/*
+** removing bias from function can increace learning process of 
+** in some cases
+*/
 typedef struct
 {
     float a;
-    float b;
 }LinReg;
 
 
 #define lin_reg_init (LinReg)                   \
     {                                           \
         .a=(float) rand() / (float)RAND_MAX     \
-        , .b=(float) rand()/(float)RAND_MAX     \
     }
 
 
@@ -34,7 +36,7 @@ error(float y, float y_p)
 float
 forward(LinReg * self, float x)
 {
-    return (x * self->a) + self->b;
+    return (x * self->a);
 }
 
 
@@ -49,20 +51,6 @@ gradient_a(
     , float y)
 {
     return -2 * x * (y - forward(self, x));
-}
-
-
-/*
-** Gradient for 'b' parameter is simply partial derivative regarding to parameter a
-** This is information about impact of change of value of parameter 'b' to change of output loss
-*/
-float
-gradient_b(
-    LinReg * self
-    , float x
-    , float y)
-{
-    return -2 * (y - forward(self, x));
 }
 
 
@@ -89,7 +77,6 @@ main(void)
     for(size_t epoch = 0; epoch < epochs; epoch++)
     {
         float da   = 0;
-        float db   = 0;
         float loss = 0;
         
         /*
@@ -101,7 +88,6 @@ main(void)
             float loc_loss = error(Y[index], y_p); 
             loss          += loc_loss;
             da            += gradient_a(&model, X[index], Y[index]);
-            db            += gradient_b(&model, X[index], Y[index]);
         }
 
         loss /= batch_size;
@@ -110,14 +96,13 @@ main(void)
         ** parameters update 
         */ 
         model.a -= da / batch_size * lr;
-        model.b -= db / batch_size * lr;
 
         printf(
-            "epoch: %ld, loss: %f - {a: %f, b: %f} {da: %f, db: %f}\n"
+            "epoch: %ld, loss: %f - {a: %f} {da: %f}\n"
             , epoch+1
             , loss
-            , model.a, model.b
-            , da, db);
+            , model.a
+            , da);
 
         if(loss <= 0.00000000001)
             break;

@@ -53,7 +53,7 @@ gradient_a(
     , float y
     , float loss)
 {
-    float delta_loss = powf(y- ((x * (self->a + DELTA)) + self->b), 2);
+    float delta_loss = powf(y - ((x * (self->a + DELTA)) + self->b), 2);
 
     return (delta_loss - loss) / DELTA;
 }
@@ -71,7 +71,7 @@ gradient_b(
     , float y
     , float loss)
 {
-    float delta_loss = powf(y- ((x * self->a) + (self->b+DELTA)), 2);
+    float delta_loss = powf(y - ((x * self->a) + (self->b+DELTA)), 2);
 
     return (delta_loss - loss) / DELTA;
 }
@@ -86,7 +86,7 @@ main(void)
     ** traing dataset
     */
     float X[] = {1, 2, 3, 4}; 
-    float Y[] = {3, 5, 7, 9}; // (x*2 + 1)
+    float Y[] = {2, 4, 6, 8};
 
     /*
     ** initialization of linear regression model with random values
